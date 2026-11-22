@@ -1,0 +1,76 @@
+# Checks posts by building the website against this repository, then (on main) asks Vercel to
+# rebuild the live site so new posts appear. A post with a problem fails here and is never published.
+name: Check and publish
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SITE_REPO: Shubhajeetgithub/FirstYearKGP
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out this content
+        uses: actions/checkout@v4
+        with:
+          path: content
+
+      - name: Check out the website
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SITE_REPO }}
+          path: site
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: site/.nvmrc
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install the website's dependencies
+        working-directory: site
+        run: npm ci
+
+      - name: Image sizes
+        working-directory: site
+        run: node scripts/check-images.mjs ../content/posts ../content/authors
+
+      - name: Build the website with this content
+        working-directory: site
+        env:
+          BLOG_CONTENT_DIR: ${{ github.workspace }}/content
+          # The resources sheet doesn't matter for checking posts.
+          SHEET_CSV_FILE: fixtures/sheet.sample.csv
+          ASTRO_TELEMETRY_DISABLED: "1"
+        run: npm run build
+
+  publish:
+    needs: check
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Rebuild the website
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
+            echo "::warning::The VERCEL_DEPLOY_HOOK secret is not set, so the site was not rebuilt. It will pick up these posts at its next daily build."
+            exit 0
+          fi
+          curl --fail --silent --show-error -X POST "$VERCEL_DEPLOY_HOOK"
+          echo "Asked Vercel to rebuild the site."
