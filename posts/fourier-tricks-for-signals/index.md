@@ -39,7 +39,7 @@ When you are walking into an exam hall, you don't want to burn ten minutes integ
 | $e^{-at}u(t)$ | $\dfrac{1}{a + j\omega}$ | $\operatorname{Re}\lbrace a \rbrace > 0$ |
 | $a^n u[n]$ | $\dfrac{1}{1 - a e^{-j\omega}}$ | $\lvert a \rvert < 1$ (discrete-time geometric decay) |
 
-![Continuous-Time Fourier Transform Pair: Rectangular Pulse and Sinc Function](fig1_rect_sinc_pair.png)
+![Continuous-Time Fourier Transform Pair: Rectangular Pulse and Sinc Function](media/fig1_rect_sinc_pair.png)
 
 ---
 
@@ -108,7 +108,7 @@ Technically, CTFS and DTFS apply only to periodic signals. However, we can also 
 
 How? Construct a **periodic avatar** $\tilde{x}(t)$ by replicating copies of the finite signal end-to-end across $(-\infty, \infty)$, compute its Fourier series coefficients, and simply restrict your attention back to $[0, T]$ (ignoring the replicated copies outside). This exact technique shows up in electrostatics when solving **Laplace's equation in Cartesian coordinates** (see *Griffiths' Introduction to Electrodynamics*, Example 3.3).
 
-![Periodic Extension of a Finite-Duration Signal](fig2_periodic_extension.png)
+![Periodic Extension of a Finite-Duration Signal](media/fig2_periodic_extension.png)
 
 ---
 
@@ -159,13 +159,13 @@ $$
 \frac{dx(t)}{dt} = 2\delta(t) - \delta(t - 2) - 2\left[u(t - 1) - u(t - 2)\right] + \left[u(t - 2) - u(t - 3)\right]
 $$
 
-![Generalized Derivative of a Piecewise-Linear Signal with Jumps](fig3_dirac_derivative.png)
+![Generalized Derivative of a Piecewise-Linear Signal with Jumps](media/fig3_dirac_derivative.png)
 
 ---
 
 ### 5. Impulse-Train Sampling, Aliasing, & CTFS via CTFT
 
-![Series transform summary](transform_summary.jpeg)
+![Series transform summary](media/transform_summary.jpeg)
 
 #### Why Sampling Replicates the Spectrum
 
