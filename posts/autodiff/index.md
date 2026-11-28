@@ -4,19 +4,25 @@ description: Introduction to computational graphs, exploring how modern ML frame
 pubDate: 2026-11-28
 author: kingshuk-patra
 tags:
+  - autodiff
+  - deep-learning
+  - backpropagation
   - pytorch
-cover: cover.png
-coverAlt: PyTorch
+  - jax
+cover: cover.webp
+coverAlt: Computational graph of backpropagation, with partial derivatives flowing back through each node
 draft: false
 ---
 
-So, here we are going to talk about a concept that is used most frequently in everything. So what's the problem? Suppose we have a function $f(x)$ and we want to compute $\mathbb{\delta} f(x)/\mathbb{\delta} x$.
+So, here we are going to talk about a concept that is used most frequently in everything. So what's the problem? Suppose we have a function $f(x)$ and we want to compute $\mathrm{d} f(x)/\mathrm{d} x$.
 
 But why? Well suppose we are in a continuous domain. Then for a function $f$, we want to find $\inf_{x \in S} f(x)$, well thanks to the geometrical significance of gradient over the continuous space, we can do this by using the fact that, $\nabla f(x)$ at point $x$, points at direction of increase of $f$, if $f(x)\in \mathbb{R}$.
 
 So if we just take a small step opposite to the gradient, $f$ goes down. And if we keep doing it,
 
-$$x_{t+1} = x_t - \eta \nabla f(x_t)$$
+$$
+x_{t+1} = x_t - \eta \nabla f(x_t)
+$$
 
 where $\eta$ is some small step size. This is gradient descent. Very simple, but this one line is basically how every neural network gets trained. There $x$ is all the parameters of the model, which can be millions or even billions, and $f$ is the loss, which says how wrong the model is. So training a model is nothing but finding a point where the loss is small, and for that we need the gradient again and again, in every single step.
 
@@ -35,7 +41,7 @@ Given how important gradients are, let's see what we can do.
 Well, if we remember the definition of differentiation by Newton, then
 
 $$
-\frac{\mathbb{\delta}f(x)}{\mathbb{\delta}x} = \lim_{h \to 0} \frac{f(x+h)-f(x)}{h} 
+\frac{\mathrm{d}f(x)}{\mathrm{d}x} = \lim_{h \to 0} \frac{f(x+h)-f(x)}{h} 
 $$
 
 So by the definition itself, instead of zero limiting $h$, if we take a small $h$, such as say $10^{-4}$ or such, then we can have a numerical approximation for a value for any black box function $f$.
@@ -55,7 +61,7 @@ If we try to do some examples.
 
 $f(x)=x^2$ and we want $f'(0)$. If we take then the error is $O(h)$. In fact, if we try,suppose the function $f$ is analytic, then
 
-$\forall h \in \mathbb{R} \exists c \in (x, x+h)  f(x+h)=f(x)+hf'(x)+\frac{h^2}{2}f''(x)+\frac{h^3}{3!}f'''(c)$
+$\forall h \in \mathbb{R} \quad \exists c \in (x, x+h) \quad f(x+h)=f(x)+hf'(x)+\frac{h^2}{2}f''(x)+\frac{h^3}{3!}f'''(c)$
 
 So, by that we have a error in our evaluation in our computation for a analytic function. And non-rigorously speaking, it's more uncertain in non-analytic cases.
 
@@ -65,23 +71,29 @@ Well it seems as yes, we can do much better. In fact we can find exact values. H
 
 Let's do little computation. Let's see how we compute a differentiation.
 
-Let's suppose a function $f(x)=x+sin(x^2+x)$
+Let's suppose a function $f(x)=x+\sin(x^2+x)$
 
 Now if we go for computing the value for $f'(x)$, let's look into our computation. I say you take the thing in your copy yourself.
 
-So it goes as, $f'(x) = 1 + (2x + 1)cos(x^2+x)$. Did you see what and how you did?
+So it goes as, $f'(x) = 1 + (2x + 1)\cos(x^2+x)$. Did you see what and how you did?
 
 Well if we formally say, in $\mathbb{R}$, the operations are additions and multiplication. And what happens under additions and multiplications? If you remember your calculus course,
 
-$$\frac{\delta (f_1(x)+f_2(x))}{\delta x} = \frac{\delta f_1(x)}{\delta x}+\frac{\delta f_2(x)}{\delta x}$$
-$$\frac{\delta f(x)g(x)}{\delta x} = f'(x)g(x)+f(x)g'(x)$$
 $$
-\frac{\delta f(g(x))}{\delta x}=f'(g(x))g'(x)
+\frac{\mathrm{d} (f_1(x)+f_2(x))}{\mathrm{d} x} = \frac{\mathrm{d} f_1(x)}{\mathrm{d} x}+\frac{\mathrm{d} f_2(x)}{\mathrm{d} x}
+$$
+
+$$
+\frac{\mathrm{d} f(x)g(x)}{\mathrm{d} x} = f'(x)g(x)+f(x)g'(x)
+$$
+
+$$
+\frac{\mathrm{d} f(g(x))}{\mathrm{d} x}=f'(g(x))g'(x)
 $$
 
 Now if we look at these cases, if we already have the values of $f$,$g$,$f'$,$g'$ at $x$, then finding those values are trivial right? That is the only information we need.
 
-Now think of what it lefts us at? Suppose a complicated function $f(x)=\mathbb{e}^{x^2+sin(x)}$, even for that we only need those composition and addition rules and some basic forms like what happens for exponential and what happens for trigonometric function. Right?
+Now think of what it lefts us at? Suppose a complicated function $f(x)=\mathrm{e}^{x^2+\sin(x)}$, even for that we only need those composition and addition rules and some basic forms like what happens for exponential and what happens for trigonometric function. Right?
 
 Now think about the situation it leaves us at. How much computation and how much logic do we need to find gradients? It seems as it's much small.
 
@@ -89,7 +101,7 @@ Now let's see computation as a graph. If you have explored compilers and AST, or
 
 #### Let's see Computation as a Graph.
 
-Now consider the function given before. $f(x)=\mathbb{e}^{x^2+sin(x)}$.
+Now consider the function given before. $f(x)=\mathrm{e}^{x^2+\sin(x)}$.
 
 If I ask how do you define this function in python?
 
@@ -173,25 +185,27 @@ Now we have the graph. Then which way do we go?
 
 #### Forward mode
 
-The first thing that comes to mind is, go along with the computation itself. For each node $v_i$, along with the value we also keep $\dot{v_i} = \frac{\delta v_i}{\delta x}$. And because of that greedy property we talked about, $\dot{v_i}$ only needs the values from its parent nodes.
+The first thing that comes to mind is, go along with the computation itself. For each node $v_i$, along with the value we also keep $\dot{v_i} = \frac{\mathrm{d} v_i}{\mathrm{d} x}$. And because of that greedy property we talked about, $\dot{v_i}$ only needs the values from its parent nodes.
 
-So for our $f(x)=\mathbb{e}^{x^2+sin(x)}$, let's take the graph and go one by one.
+So for our $f(x)=\mathrm{e}^{x^2+\sin(x)}$, let's take the graph and go one by one.
 
 $\dot v_0 = 1$ as $v_0 = x$
 
 $\dot v_1 = 2v_0 \dot v_0$
 
-$\dot v_2 = cos(v_0)\dot v_0$
+$\dot v_2 = \cos(v_0)\dot v_0$
 
 $\dot v_3 = \dot v_1 + \dot v_2$
 
-$\dot v_4 = \mathbb{e}^{v_3}\dot v_3$
+$\dot v_4 = \mathrm{e}^{v_3}\dot v_3$
 
 and $\dot v_4$ is our $f'(x)$. Now see, there is no $h$ here. So no approximation, it's the exact value.
 
 Now how to implement it? One nice way is by dual numbers. Suppose a number of form $a + b\epsilon$ where $\epsilon \neq 0$ but $\epsilon^2 = 0$. Seems weird, but just think of it like $i$ where $i^2=-1$. Now go back to that Taylor expansion we did earlier, and put $h = b\epsilon$. All the terms with $h^2$ or more just becomes zero. So we get,
 
-$$f(a+b\epsilon) = f(a) + f'(a)b\epsilon$$
+$$
+f(a+b\epsilon) = f(a) + f'(a)b\epsilon
+$$
 
 So if we keep the $\epsilon$ part along with the value, we get the derivative also with the value. In python we just need to overload the operators.
 
@@ -232,15 +246,15 @@ So are we done? Well, not really. Here in one pass we are getting derivative wit
 
 #### Reverse mode
 
-So let's think the other way round. Instead of finding how each node changes with $x$, let's find how $f$ changes with each node. So we define $\bar{v_i} = \frac{\delta f}{\delta v_i}$, people call it adjoint. Now $\bar v_4 = 1$ obviously, as $v_4$ is $f$ itself. Then we go backward in the graph.
+So let's think the other way round. Instead of finding how each node changes with $x$, let's find how $f$ changes with each node. So we define $\bar{v_i} = \frac{\mathrm{d} f}{\mathrm{d} v_i}$, people call it adjoint. Now $\bar v_4 = 1$ obviously, as $v_4$ is $f$ itself. Then we go backward in the graph.
 
 $\bar v_4 = 1$
 
-$\bar v_3 = \bar v_4 \mathbb{e}^{v_3}$
+$\bar v_3 = \bar v_4 \mathrm{e}^{v_3}$
 
 $\bar v_1 = \bar v_3$ and $\bar v_2 = \bar v_3$
 
-$\bar v_0 = \bar v_1 2v_0 + \bar v_2 cos(v_0)$
+$\bar v_0 = \bar v_1 2v_0 + \bar v_2 \cos(v_0)$
 
 Now look at $\bar v_0$ carefully. $x$ went to two branches, so contribution from both the branches gets added up. That's the multivariate chain rule, and that is why I said about the branches in the graph earlier.
 
@@ -304,7 +318,7 @@ Now remember we talked about lazy mode and I said `jax.jit` is somewhat like tha
 
 In `jax`, functions are just functions. Like in maths. You give input, you get output, and nothing else happens. No hidden state, nothing stored inside the tensors, parameters are passed explicitly as arguments.
 
-And then `jax.grad` is also just a function. It takes a function and gives you another function, which is the derivative. Just like the $\frac{\delta}{\delta x}$ operator in maths takes $f$ and gives $f'$.
+And then `jax.grad` is also just a function. It takes a function and gives you another function, which is the derivative. Just like the $\frac{\mathrm{d}}{\mathrm{d} x}$ operator in maths takes $f$ and gives $f'$.
 
 ```python
 import jax
