@@ -1,6 +1,6 @@
 ---
 title: Autodiff
-description: A gentle introduction to differentiation, automatic differentiation, and computational graphs, exploring how modern machine learning frameworks efficiently compute exact gradients through forward and reverse mode autodiff
+description: Introduction to computational graphs, exploring how modern ML frameworks efficiently compute exact gradients through forward and reverse mode autodiff
 pubDate: 2026-11-28
 author: kingshuk-patra
 tags:
